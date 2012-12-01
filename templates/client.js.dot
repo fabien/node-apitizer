@@ -1,0 +1,62 @@
+(function(){
+	'use strict';
+
+	function zip(a,b) {
+		var min = (a.length > b.length) ? b : a;
+		var r = {};
+		for (var i = 0; i < min.length; i += 1) {
+			r[a[i]] = b[i];
+		}
+		return r;
+	}
+
+	function call(fname,rargs,args,onresult) {
+		if (typeof(jQuery) === 'undefined') {
+			console.error('{{= it.namespace}}.'+fname+': missing jQuery!');
+			return null;
+		}
+		if ((onresult ? args.length-1 : args.length) !== rargs.length) {
+			console.error('{{= it.namespace}}.'+fname+': argument count mismatch!');
+			return null;
+		}
+		var onsuccess = function(res, ts, xhr){
+			if (onresult) {
+				onresult(res.ok ? null : res.error, res.data);
+			}
+		};
+		var onerror = function(xhr, ts, err){
+			if (onresult) {
+				onresult('network error: ' + xhr.status, null);
+			}
+		};
+		return $.ajax({
+			url: '{{= it.path }}',
+			{{? it.method === 'post'}}
+			type: 'POST',
+			contentType: 'application/json; charset=UTF-8',
+			data: JSON.stringify({ '_call': fname, '_args': zip(rargs, args) }),
+			{{??}}
+			type: 'GET',
+			data: { '_call': fname, '_args': JSON.stringify(zip(rargs, args)) },
+			{{?}}
+			cache: false,
+			dataType: 'json',
+			success: onsuccess,
+			error: onerror
+		});
+	}
+
+	var cns = window, nss = '{{= it.namespace }}'.split('.');
+	for (var i = 0; i < nss.length; i += 1) {
+		if (!cns.hasOwnProperty(nss[i])) {
+			cns[nss[i]] = {};
+		}
+		cns = cns[nss[i]];
+	}
+	{{~ it.elements :e }}{{? e.type !== 'function'}}
+	window.{{= it.namespace}}.{{= e.name }} = {{? e.type === 'string'}}'{{= e.value }}'{{??}}{{= e.value}}{{?}};	{{?}}{{~}}
+	{{~ it.elements :e }}{{? e.type === 'function'}}
+	window.{{= it.namespace}}.{{= e.name }} = function({{= e.args }}{{? e.args.length}},{{?}}_onresult){ return call('{{= e.name}}',[{{~ e.args :a:ai }}'{{=a}}'{{? ai<e.args.length-1}},{{?}}{{~}}],arguments,_onresult); };	{{?}}{{~}}
+}());
+
+

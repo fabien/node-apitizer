@@ -1,0 +1,35 @@
+{
+	"name": "apitizer",
+	"version": "0.0.7",
+	"description": "quick and simple web api generator",
+	"author": {
+		"name": "Volker Arweiler",
+		"email": "volker.arweiler@gmail.com",
+		"url": "http://www.github.com/farwyler"
+	},
+	"dependencies": {
+		"jshint": "0.9.x",
+		"dot": "0.2.x",
+		"uglify-js": "2.2.x"
+	},
+	"devDependencies": {
+		"express": "*"
+	},
+	"keywords": [
+		"apitizer",
+		"api",
+		"generator",
+		"express",
+		"json",
+		"web"
+	],
+	"repository": {
+		"type": "git",
+		"url": "https://github.com/farwyler/node-apitizer.git"
+	},
+	"main": "index",
+	"engines": {
+		"node": ">=0.6.0"
+	},
+	"license": "MIT"
+}
